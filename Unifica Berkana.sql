@@ -1,3 +1,5 @@
+---CREACON DE TABLAS PROCESO UNIFICA
+
 CREATE TABLE [Mercado.Em] (
   [Origen] VARCHAR(50),
   [Pais] VARCHAR(50),
