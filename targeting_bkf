@@ -1,0 +1,41 @@
+SELECT               
+             D.linea
+            ,D.sub_linea
+            ,D.marca
+            ,D.[mdo_relevante] 
+            ,B.cod_bi
+            ,B.nom_bi
+            ,B.loc_bi
+	        ,B.dom_bi
+            ,B.reg_bi
+            ,B.esp_bi
+            ,B.mat_bi
+            ,M.periodo 
+            ,M.descripcion 
+            ,SUM(M.val) as suma 
+FROM [BDBerkanaPharma].[dbo].[Medicos] AS M
+
+			INNER JOIN [dbo].[MedicosBi] AS B
+			ON B.CDG_MEDICO=M.CDG_MEDICO
+
+			INNER JOIN ParrillaPromocional AS D
+			ON D.MDO_RELEVANTE=M.descripcion
+
+WHERE M.periodo='TAM 11/22'
+			
+GROUP BY   
+             D.linea
+            ,D.sub_linea
+            ,D.marca
+            ,D.[mdo_relevante] 
+            ,B.cod_bi
+            ,B.nom_bi
+            ,B.loc_bi
+	        ,B.dom_bi
+            ,B.reg_bi
+            ,B.esp_bi
+            ,B.mat_bi
+            ,M.periodo 
+            ,M.descripcion 
+
+ORDER BY B.nom_bi
