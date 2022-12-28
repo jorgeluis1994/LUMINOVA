@@ -1,54 +1,102 @@
---CREATE TABLE "Medicos"
---(
---  IdMedico int IDENTITY(1,1)
---, nombre VARCHAR(100)
---, domicilio VARCHAR(100)
---, localidad VARCHAR(100)
---, cdg_region BIGINT
---, region VARCHAR(100)
---, cdg_postal BIGINT
---, matricula BIGINT
---, cdg_esp1 VARCHAR(20)
---, cdg_esp2 VARCHAR(20)
---, rep VARCHAR(50)
---, cdg_zonapostal BIGINT
---, categoria BIGINT
---, descripcion VARCHAR(100)
---, ptotal_mer BIGINT
---, periodo VARCHAR(20)
---, prod VARCHAR(100)
---, val BIGINT
---, cdg_medico BIGINT
---)
-
-CREATE TABLE FicheroMedico
-(
-  IdMedico int IDENTITY(1,1)
-, lab_atc VARCHAR(10)
-, stio BIGINT
-, codigo_interno BIGINT
-, nombre_doctor VARCHAR(100)
-, nombre_cup VARCHAR(100)
-, domicilio VARCHAR(150)
-, categoria BIGINT
-, representante VARCHAR(30)
-, mv_q VARCHAR(50)
-, vm_rx_mdo VARCHAR(100)
-, vm_sector VARCHAR(50)
-, vh_ciudad VARCHAR(50)
-, region VARCHAR(20)
-, cedula VARCHAR(50)
-, clinica_hospital VARCHAR(50)
-, cod_cup VARCHAR(20)
-, cdg_med1 VARCHAR(20)
-, vm_quintil VARCHAR(10)
-, frecuencia VARCHAR(20)
-, mm VARCHAR(20)
-, cdg_esp1 VARCHAR(10)
-, provincia VARCHAR(50)
-, ciudad VARCHAR(50)
-, sector VARCHAR(50)
-, vm_recetario VARCHAR(50)
-, sede_gira VARCHAR(20)
-, linea_act VARCHAR(20)
+CREATE TABLE [Mercado.Em] (
+  [Origen] VARCHAR(50),
+  [Pais] VARCHAR(50),
+  [Division] VARCHAR(50),
+  [Apertura] VARCHAR(50),
+  [Producto] VARCHAR(50),
+  [Periodo] VARCHAR(50),
+  [Val] INT,
+  [Auditoria] VARCHAR(50),
+  [Laboratorio] VARCHAR(50)
 )
+GO
+
+CREATE TABLE [Mercado.Marca] (
+  [Marca] VARCHAR(50),
+  [Producto] VARCHAR(50),
+  [Origen] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.Molecula] (
+  [Molecula] VARCHAR(50),
+  [Producto] VARCHAR(50),
+  [Origen] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.ClaseTerapeutica] (
+  [ClaseTerapeutica] VARCHAR(50),
+  [Codigo] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.FormaFarmaceutica] (
+  [Producto] VARCHAR(50),
+  [FormaFarmaceutica] VARCHAR(50),
+  [FormaFAgrupada] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.UnidadesValores] (
+  [Region] VARCHAR(50),
+  [Provincia] VARCHAR(50),
+  [Laboratorio] VARCHAR(50),
+  [ClaseTerapeutica] VARCHAR(50),
+  [Producto] VARCHAR(50),
+  [Presentacion] VARCHAR(50),
+  [Molecula] VARCHAR(50),
+  [FormaFarmaceutica] VARCHAR(50),
+  [Periodo] VARCHAR(50),
+  [Val] INT,
+  [Auditoria] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.MercadoRelevante] (
+  [MercadoRelevante] VARCHAR(50),
+  [ClaseTerapeutica] VARCHAR(50),
+  [FormaFarmaceutica] VARCHAR(50),
+  [Molecula] VARCHAR(50),
+  [Auditoria] VARCHAR(50),
+  [Linea] VARCHAR(50),
+  [Laboratorio] VARCHAR(50),
+  [Division] VARCHAR(50),
+  [Origen] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.Laboratorio] (
+  [Pais] VARCHAR(50),
+  [Laboratorio] VARCHAR(50),
+  [SiglaLab] VARCHAR(50),
+  [Origen] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.Region] (
+  [Region] VARCHAR(50),
+  [Provincia] VARCHAR(50),
+  [Pais] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.Periodo] (
+  [Periodo] VARCHAR(50),
+  [Mes] INT
+)
+GO
+
+CREATE TABLE [Mercado.ClaseTerapeuticaFor] (
+  [ClaseTerapeutica] VARCHAR(50),
+  [FormaFarmaceutica] VARCHAR(50),
+  [Auditoria] VARCHAR(50)
+)
+GO
+
+CREATE TABLE [Mercado.ClaseTerapeuticaMol] (
+  [ClaseTerapeutica] VARCHAR(50),
+  [Molecula] VARCHAR(50),
+  [Auditoria] VARCHAR(50)
+)
+GO
