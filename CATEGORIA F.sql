@@ -2,12 +2,13 @@
 SELECT 
          M.Periodo
         ,TB.[REG_BI]    
-        ,M.[descripcion] AS DESCRIPCION   
+        ,M.[descripcion] AS DESCRIPCION   		
         ,TB.COD_BI 
         ,TB.NOM_BI 
 		,TB.Esp_bi
-        ,SUM(M.Val) as SUMA    
-INTO MEDICOS_0#
+        ,SUM(M.Val) as SUMA 
+		
+INTO Cat1#
  
 FROM  [dbo].[Medicos] AS M
 
@@ -15,19 +16,25 @@ FROM  [dbo].[Medicos] AS M
     ON P.Region=M.Region
     
     INNER JOIN [dbo].[MedicosBi] AS TB
-    ON TB.CDG_MEDICO=M.Cdg_medico
+    ON tb.Cdg_medico=M.Cdg_medico
 
     WHERE M.MES=11 
     
-    GROUP BY 
+GROUP BY 
          TB.[REG_BI]    
         ,M.[descripcion]  
         ,TB.COD_BI 
         ,TB.NOM_BI
         ,M.PERIODO 
 		,TB.Esp_bi
+		
             
-    ORDER BY PERIODO,REG_BI,DESCRIPCION,SUMA DESC
+ ORDER BY 
+          PERIODO
+         ,REG_BI
+		 ,DESCRIPCION
+		 ,SUMA DESC
+
 --PASO 2--
 SELECT 
              ROW_NUMBER()OVER(PARTITION  BY PERIODO,DESCRIPCION,REG_BI ORDER BY SUMA DESC ) NUMERO 
@@ -38,9 +45,9 @@ SELECT
             ,[NOM_BI]     
 	        ,SUMA
 	            		     	 
-  INTO MEDICOS_1# 
+  INTO Cat2# 
   --DROP TABLE MEDICOS_1# 
-  FROM [dbo].[MEDICOS_0#]
+  FROM [dbo].[Cat1#]
   ORDER BY 
             PERIODO
 		   ,DESCRIPCION 
@@ -57,18 +64,17 @@ SELECT
       ,[SUMA]
 	  ,SUM(SUMA)OVER(PARTITION BY PERIODO,DESCRIPCION ,REG_BI ORDER BY REG_BI ASC ) AS TOTAL_REGION	  
   
-  INTO MEDICOS_2#
-  FROM [dbo].[MEDICOS_1#]
+  INTO Cat3#
+  FROM [dbo].[Cat2#]
 
-  --WHERE PERIODO='CUAT 04/21'
+  
   ORDER BY 
            PERIODO
 		   ,DESCRIPCION 
            ,REG_BI          
            ,SUMA DESC
 --PASO 4--
-SELECT 
-           
+SELECT         
 		   [PERIODO]
 		  ,[DESCRIPCION]
 		  ,[REG_BI]
@@ -80,8 +86,8 @@ SELECT
 		  ,SUM(SUMA)OVER( PARTITION  BY PERIODO,DESCRIPCION,REG_BI ORDER BY NUMERO DESC ,SUMA ASC  ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS ACUMULADO 
 		  		 
 		  
- INTO MEDICOS_3#  
-  FROM [dbo].[MEDICOS_2#]
+ INTO Cat4#  
+  FROM [dbo].[Cat3#]
 
   ORDER BY 
             PERIODO
@@ -102,8 +108,8 @@ SELECT
       ,[SUMA]
       ,[TOTAL_REGION]
       ,[ACUMULADO]
-      INTO MEDICOS_4#
-  FROM [dbo].[MEDICOS_3#]
+  INTO Cat5#
+  FROM [dbo].[Cat4#]
   ORDER BY 
             PERIODO
 		   ,DESCRIPCION 
@@ -111,9 +117,7 @@ SELECT
 		   ,NUMERO
            ,SUMA DESC
 --PASO 6--
-SELECT 
-       
-	   
+SELECT       	   
 	   [PERIODO]
       ,[DESCRIPCION]
       ,[REG_BI]
@@ -126,8 +130,8 @@ SELECT
 	  ,(CONVERT(FLOAT,ACUMULADO)/TOTAL_REGION)*100 AS PORCENTAJE_ACUMULA 
 
 
-  INTO MEDICOS_5#
-  FROM [dbo].[MEDICOS_4#]
+  INTO Cat6#
+  FROM [dbo].[Cat5#]
 
   ORDER BY 
             PERIODO
@@ -135,7 +139,7 @@ SELECT
            ,REG_BI
 		   ,NUMERO
            ,SUMA DESC
---PASO 7--FINAL
+--PASO 7--
 ------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------
 SELECT 
@@ -155,8 +159,8 @@ SELECT
 	   IIF( [PORCENTAJE_ACUMULA] >=60 AND [PORCENTAJE_ACUMULA] <=80 ,2,
 	   IIF( [PORCENTAJE_ACUMULA] >=80 AND [PORCENTAJE_ACUMULA] <=100 ,1,200))))) AS CATEGORIA
 
-INTO CategoriaCalculada
-  FROM [dbo].[MEDICOS_5#]
+  INTO CatCalculada#
+  FROM [dbo].[Cat6#]
 
   ORDER BY 
             PERIODO
@@ -166,19 +170,34 @@ INTO CategoriaCalculada
            ,SUMA DESC
 /****** Script for SelectTopNRows command from SSMS  ******/
 SELECT  
-       CONCAT(T.Periodo,T.REG_BI,T.DESCRIPCION) AS CONCATENADO
-	   ,T.[COD_BI] as CDG_MEDICO
+        CONCAT(T.Periodo,T.COD_BI,R.Descripcion) AS CONCATENADO
+	   ,T.[COD_BI]    AS CDG_MEDICO
 	   ,T.[NOM_BI]	  AS NOMBRE_DOCTOR
-      ,T.[DESCRIPCION] AS DESC_MDO
-	  ,T.[Esp_bi]  AS CDG_ESP1
-      ,T.[REG_BI] AS REGION
-	  ,T.[Periodo] AS PERIODO
-	  ,C.CATEGORIA
-      ,T.[SUMA]   AS SUMA
-  FROM [BDMedicosLuminovaPg].[dbo].[MEDICOS_0#] AS T
-  LEFT JOIN [dbo].[CategoriaCalculada] AS C
+       ,R.Descripcion AS DESC_MDO
+	   ,T.[Esp_bi]    AS CDG_ESP1
+       ,T.[REG_BI]    AS REGION
+	   ,T.[Periodo]   AS PERIODO
+	   ,C.CATEGORIA
+       ,T.[SUMA]      AS SUMA
+	   ,P.CodPais
+  FROM [BDMedicosLuminovaPg].[dbo].[Cat1#] AS T
+
+  INNER JOIN [dbo].[CatCalculada#] AS C
   ON (T.COD_BI=C.COD_BI AND  T.Periodo=C.PERIODO) AND(T.DESCRIPCION=C.DESCRIPCION)
+
+  LEFT JOIN [dbo].[Pais] AS P
+  ON T.REG_BI=P.Region
+
+  INNER JOIN [dbo].[MercadoRelevante] R
+  ON T.DESCRIPCION=R.Form
    
+  WHERE P.CodPais='01. GT' 
+     AND (C.PERIODO='CUAT MOV 11/21' 
+     OR C.PERIODO='CUAT MOV 11/22' 
+	 OR C.PERIODO='TAM 11/22' 
+	 OR C.PERIODO='YTD MOV 2021' 
+	 OR C.PERIODO='YTD MOV 2022')
+
   ORDER BY 
             T.Periodo
 		   ,T.DESCRIPCION 
